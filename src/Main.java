@@ -1,120 +1,116 @@
 
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.stage.Stage;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Insets;
+import java.awt.Label;
+import java.awt.Menu;
+import java.awt.MenuBar;
+import java.awt.MenuItem;
+import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-public class Main extends Application {
+public class Main extends Frame {
 
-    private Stage primaryStage;
     private MenuBar menu;
-    private BorderPane root;
     private Label text;
 
-    @Override
-    public void start(Stage primaryStage) {
-        text = new Label();
-        text.setOnMouseClicked((MouseEvent event) -> {
-            if (event.getButton().equals(MouseButton.SECONDARY)) {
-                if (event.getClickCount() == 2) {
-                    root.setTop(menu);
-                }
-            }
-        });
-
-        root = new BorderPane(text);
+    public Main() {
+        initFrame();
         initMenu();
+        initText();
 
-        Scene scene = new Scene(root, 300, 250);
-
-        this.primaryStage = primaryStage;
-        setTitel("Hier könnte ihre Werbung stehen");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        this.setTitle("Hier könnte ihre Werbung stehen");
     }
 
-    private void setTitel(String titel) {
-        primaryStage.setTitle(titel);
-        text.setText(titel);
+    @Override
+    public void setTitle(String title) {
+        super.setTitle(title);
+        text.setText(title);
     }
 
     private void initMenu() {
-        Menu menuDatei = new Menu("Datei"),
-                menuTitel = new Menu(),
-                menuWeg = new Menu();
+        menu = new MenuBar();
+        Menu datei = new Menu("Datei"),
+                titel = new Menu("Titel"),
+                menuM = new Menu("Menu");
+        MenuItem beenden = new MenuItem("Beenden"),
+                titelAendern = new MenuItem("Titel ändern"),
+                menuWeg = new MenuItem("MenuWeg");
+        datei.add(beenden);
+        titel.add(titelAendern);
+        menuM.add(menuWeg);
 
-        MenuItem itemClose = new MenuItem("Beenden");
-        menuDatei.getItems().setAll(itemClose);
-
-        itemClose.setOnAction((ActionEvent event) -> {
-            System.exit(0);
+        beenden.addActionListener((ActionEvent e) -> {
+            super.dispose();
         });
 
-        Label label = new Label("Titel Ändern");
-        label.setOnMouseClicked((MouseEvent event) -> {
-            titelAendern();
-        });
-        menuTitel.setGraphic(label);
+        titelAendern.addActionListener((ActionEvent e) -> {
 
-        label = new Label("MenuWeg");
-        label.setOnMouseClicked((MouseEvent event) -> {
-            menuWeg();
         });
-        menuWeg.setGraphic(label);
 
-//        menuWeg.setOnShown((Event event) -> {
-//            menuWeg.hide();
-//            menuTitel.hide();
-//            Platform.runLater(() -> {
-//                menuWeg();
-//            });
-//        });
-//        menuTitel.setOnShown((Event event) -> {
-//            menuTitel.hide();
-//            neuerTitel();
-//        });
-//        menuWeg.getItems().addAll(new MenuItem());
-//        menuTitel.getItems().addAll(new MenuItem());
-        menu = new MenuBar(menuDatei, menuTitel, menuWeg);
-        root.setTop(menu);
+        menuWeg.addActionListener((ActionEvent e) -> {
+            super.setMenuBar(null);
+        });
+
+        menu.add(datei);
+        menu.add(titel);
+        menu.add(menuM);
+        super.setMenuBar(menu);
     }
 
-    private void titelAendern() {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Neuer Titel");
-        dialog.setContentText("Neuer Titel:");
-        dialog.setHeaderText(null);
-        dialog.setGraphic(null);
+    private void initFrame() {
+        super.setLayout(null);
+        super.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent we) {
+                dispose();
+            }
+        });
 
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(titel -> setTitel(titel));
+        super.addComponentListener(new ComponentAdapter() {
+
+            @Override
+            public void componentResized(ComponentEvent e) {
+                super.componentResized(e);
+                posText();
+            }
+
+        });
     }
 
-    private void menuWeg() {
-        try {
-            Thread.sleep(1);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        root.setTop(null);
+    private void initText() {
+        text = new Label();
+        text.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    if (e.getClickCount() == 2) {
+                        setMenuBar(menu);
+                    }
+                }
+            }
+        });
+        super.add(text);
+    }
+
+    private void posText() {
+        Insets insets = super.getInsets();
+        Dimension size = text.getPreferredSize();
+        int x = ((super.getWidth() - insets.right - size.width) / 2),
+                y = ((super.getHeight() - insets.top - insets.bottom - size.height) / 2);
+        text.setBounds(insets.left + x, insets.top + y, size.width, size.height);
     }
 
     public static void main(String[] args) {
-        launch(args);
+        Main frame = new Main();
+        frame.setSize(500, 500);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
     }
-
 }
