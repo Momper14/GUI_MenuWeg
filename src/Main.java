@@ -50,7 +50,14 @@ public class Main extends Frame {
         });
 
         titelAendern.addActionListener((ActionEvent e) -> {
-
+            InputDialog dialog = new InputDialog(this);
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
+            String titelNeu = dialog.getInput();
+            if (titelNeu != null && !titelNeu.isEmpty()) {
+                setTitle(titelNeu);
+                posText();
+            }
         });
 
         menuWeg.addActionListener((ActionEvent e) -> {
@@ -65,6 +72,7 @@ public class Main extends Frame {
 
     private void initFrame() {
         super.setLayout(null);
+        super.setSize(500, 500);
         super.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent we) {
@@ -109,7 +117,6 @@ public class Main extends Frame {
 
     public static void main(String[] args) {
         Main frame = new Main();
-        frame.setSize(500, 500);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
