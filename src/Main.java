@@ -19,6 +19,7 @@ public class Main extends Frame {
     private MenuBar menu;
     private Label text;
 
+    @SuppressWarnings("OverridableMethodCallInConstructor")
     public Main() {
         initFrame();
         initMenu();
